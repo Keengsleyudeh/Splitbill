@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+
 const initialFriends = [
   {
     id: 118836,
@@ -34,6 +35,7 @@ export default function App() {
   const [friends, setFriends] = useState(initialFriends);
   const [selectedFriend, setSelectedFriend] = useState(null);
 
+
   function handleShowAddfriend() {
     setShowAddFriend((show) => !show);
   }
@@ -49,6 +51,22 @@ export default function App() {
     (selected?.id===friend.id? null: friend))
     setShowAddFriend(false)
   }
+
+  function handleSplitBill(value) {
+    console.log(value)
+    
+
+    setFriends((friends)=> 
+    friends.map((friend)=> 
+    (selectedFriend.id===friend.id? 
+    {...friend, balance: friend.balance + value}: 
+    friend)))
+
+    setSelectedFriend(null)
+
+    console.log(friends)
+  }
+
 
   return (
     <div className="app">
@@ -72,8 +90,9 @@ export default function App() {
       </div>
 
       {selectedFriend &&  
-      <FormSplitBill 
-      selectedFriend={selectedFriend}
+      <FormSplitBill
+        selectedFriend={selectedFriend}
+        onSplitBill={handleSplitBill}
       />}
     </div>
   );
@@ -103,13 +122,13 @@ function Friend({friend, onSelectedFriend, selectedFriend}) {
 
       {friend.balance < 0 && (
         <p className="red">
-          You owe {friend.name} {Math.abs(friend.balance)}
+          You owe {friend.name} ${Math.abs(friend.balance)}
         </p>
       )}
 
       {friend.balance > 0 && (
         <p className="green">
-          {friend.name} owes you {Math.abs(friend.balance)}
+          {friend.name} owes you ${Math.abs(friend.balance)}
         </p>
       )}
       {friend.balance === 0 && (
@@ -166,27 +185,40 @@ function FormAddFriend({onAddFriends}) {
   );
 }
 
-function FormSplitBill({selectedFriend}) {
+function FormSplitBill({selectedFriend, onSplitBill}) {
+  
+  const [bill, setBill] =  useState('')
+  const  [expense, setExpense] = useState('')
+  const friendsBill = (bill? bill-expense: '')
+  const [whoIsPaying, setWhoIsPaying] = useState("user")
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    if(!bill || !expense) return;
+
+    onSplitBill(whoIsPaying === "user"? friendsBill: -expense)
+  }
   return (
-    <form className="form-split-bill">
+    <form className="form-split-bill" onSubmit={handleSubmit}>
       <h2>Split a bill with {selectedFriend.name}</h2>
 
       <label>💴 Bill value</label>
-      <input type="text" />
+      <input type="text" value={bill} onChange={(e)=>setBill(Number(e.target.value))}/>
 
       <label>🤵 Your expense</label>
-      <input type="text" />
+      <input type="text" value={expense} onChange={(e)=>setExpense(Number(e.target.value)>bill? expense: Number(e.target.value))}/>
 
       <label>👨🏼‍🤝‍👨🏻 {selectedFriend.name}'s expense</label>
-      <input type="text" disabled />
+      <input type="text" disabled value={friendsBill} />
 
       <label>🤑 Who is paying the money?</label>
-      <select>
+      <select value={whoIsPaying} onChange={(e)=>setWhoIsPaying(e.target.value)}>
         <option value="user">You</option>
         <option value="friend">{selectedFriend.name}</option>
       </select>
 
-      <Button>Add</Button>
+      <Button>Split</Button>
     </form>
   );
 }
