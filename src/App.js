@@ -4,7 +4,7 @@ import { useState } from "react";
 const initialFriends = [
   {
     id: 118836,
-    name: "Clark",
+    name: "Charles",
     image: "https://i.pravatar.cc/48?u=118836",
     balance: -7,
   },
@@ -16,7 +16,7 @@ const initialFriends = [
   },
   {
     id: 499476,
-    name: "Anthony",
+    name: "Peter",
     image: "https://i.pravatar.cc/48?u=499476",
     balance: 0,
   },
@@ -53,18 +53,13 @@ export default function App() {
   }
 
   function handleSplitBill(value) {
-    console.log(value)
-    
-
     setFriends((friends)=> 
     friends.map((friend)=> 
     (selectedFriend.id===friend.id? 
     {...friend, balance: friend.balance + value}: 
     friend)))
 
-    setSelectedFriend(null)
-
-    console.log(friends)
+    setSelectedFriend(null);
   }
 
 
